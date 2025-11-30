@@ -1,47 +1,33 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 
-df = pd.read_csv("data.csv")
+def kelvin_to_celsius(k):
+    return k - 273.15
 
-# Ver tipos de datos de las columnas
-print(df.dtypes)
+def kelvin_to_fahrenheit(k):
+    return (k - 273.15) * 9/5 + 32
 
-# Convertir la columna 'Datetime' a tipo datetime
-df['Datetime'] = pd.to_datetime(df['Datetime'])
-# Establecer la columna 'Date' como índice del DataFrame
-df.set_index('Datetime', inplace=True)
+def main():
+    # 1. Leer el archivo original
+    df = pd.read_csv("data.csv")
 
-# TODO: Crear funcion para convertir de grados Kelvin a Celsius
-def kelvin_to_celsius(kelvin):
-    pass
-    
+    # 2. Agregar columnas convertidas
+    df["Temperatura_C"] = df["Temperatura_K"].apply(kelvin_to_celsius)
+    df["Temperatura_F"] = df["Temperatura_K"].apply(kelvin_to_fahrenheit)
 
-# TODO: Copiar el DataFrame original y nombralo df_celsius
+    # 3. Obtener estadísticas
+    prom = df["Temperatura_C"].mean()
+    ciudad_caliente = df.loc[df["Temperatura_C"].idxmax(), "Ciudad"]
+    ciudad_fria = df.loc[df["Temperatura_C"].idxmin(), "Ciudad"]
 
-# TODO: Convertir las temperaturas de cada ciudad de Kelvin a Celsius usando la funcion creada
+    print("=== Estadísticas ===")
+    print(f"Temperatura promedio (°C): {prom:.2f}")
+    print(f"Ciudad más caliente: {ciudad_caliente}")
+    print(f"Ciudad más fría: {ciudad_fria}")
 
-# Analisis
+    # 4. Guardar archivo convertido
+    df.to_csv("temperaturas_convertidas.csv", index=False)
 
-# TODO: Imprime que día y hora se registró la temperatura mínima en Phoenix con el siguiente mensaje: "El día con la temperatura mínima en Phoenix fue: {fecha}"
-# TODO: Imprime la temperatura mínima en Phoenix con el siguiente mensaje: "La temperatura mínima registrada en Phoenix fue de: ", temperatura, " °C""
-
-# TODO: Imprime que día y hora se registró la temperatura máxima en Phoenix con el siguiente mensaje: "El día con la temperatura máxima en Phoenix fue: {fecha}"
-# TODO: Imprime la temperatura máxima en Phoenix con el siguiente mensaje: "La temperatura máxima registrada en Phoenix fue de: ", temperatura, " °C""
-
-# TODO: Imprime la temperatura promedio en Phoenix durante el año 2016 con el siguiente mensaje: "La temperatura promedio durante 2016 en Phoenix fue de: ", temperatura, " °C""
-
-# Graficar la temperatura de Phoenix durante el año 2016
-plt.figure(figsize=(20, 10))
-plt.scatter(df_celsius.index, df_celsius['Phoenix'], label='Phoenix')
-plt.title('Temperatura en Phoenix durante 2016')
-plt.xlabel('Fecha')
-plt.ylabel('Temperatura (°C)')
-plt.legend()
-plt.grid()
-plt.savefig("temperatura_phoenix_2016.png")
-plt.show()
-
-# Exportar el DataFrame modificado a un nuevo archivo CSV
-df_celsius.to_csv("temperatura_celsius.csv")
+if __name__ == "__main__":
+    main()
 
 
