@@ -1,47 +1,73 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("data.csv")
-
-# Ver tipos de datos de las columnas
-print(df.dtypes)
-
-# Convertir la columna 'Datetime' a tipo datetime
-df['Datetime'] = pd.to_datetime(df['Datetime'])
-# Establecer la columna 'Date' como índice del DataFrame
-df.set_index('Datetime', inplace=True)
-
-# TODO: Crear funcion para convertir de grados Kelvin a Celsius
-def kelvin_to_celsius(kelvin):
-    pass
-    
-
-# TODO: Copiar el DataFrame original y nombralo df_celsius
-
-# TODO: Convertir las temperaturas de cada ciudad de Kelvin a Celsius usando la funcion creada
-
-# Analisis
-
-# TODO: Imprime que día y hora se registró la temperatura mínima en Phoenix con el siguiente mensaje: "El día con la temperatura mínima en Phoenix fue: {fecha}"
-# TODO: Imprime la temperatura mínima en Phoenix con el siguiente mensaje: "La temperatura mínima registrada en Phoenix fue de: ", temperatura, " °C""
-
-# TODO: Imprime que día y hora se registró la temperatura máxima en Phoenix con el siguiente mensaje: "El día con la temperatura máxima en Phoenix fue: {fecha}"
-# TODO: Imprime la temperatura máxima en Phoenix con el siguiente mensaje: "La temperatura máxima registrada en Phoenix fue de: ", temperatura, " °C""
-
-# TODO: Imprime la temperatura promedio en Phoenix durante el año 2016 con el siguiente mensaje: "La temperatura promedio durante 2016 en Phoenix fue de: ", temperatura, " °C""
-
-# Graficar la temperatura de Phoenix durante el año 2016
-plt.figure(figsize=(20, 10))
-plt.scatter(df_celsius.index, df_celsius['Phoenix'], label='Phoenix')
-plt.title('Temperatura en Phoenix durante 2016')
-plt.xlabel('Fecha')
-plt.ylabel('Temperatura (°C)')
-plt.legend()
-plt.grid()
-plt.savefig("temperatura_phoenix_2016.png")
-plt.show()
-
-# Exportar el DataFrame modificado a un nuevo archivo CSV
-df_celsius.to_csv("temperatura_celsius.csv")
+# =====================================
+# 1. FUNCIÓN PARA CONVERTIR K → C
+# =====================================
+def kelvin_to_celsius(k):
+    return k - 273.15
 
 
+def main():
+
+    # =====================================
+    # 2. CARGAR DATASET ORIGINAL
+    # =====================================
+    df = pd.read_csv("data.csv")
+
+    # =====================================
+    # 3. CONVERTIR TODAS LAS CIUDADES A °C
+    # =====================================
+    df_celsius = pd.DataFrame()
+    df_celsius["Date"] = df["Date"]
+    df_celsius["San Diego"] = df["San Diego"].apply(kelvin_to_celsius)
+    df_celsius["Phoenix"] = df["Phoenix"].apply(kelvin_to_celsius)
+    df_celsius["Toronto"] = df["Toronto"].apply(kelvin_to_celsius)
+
+    # =====================================
+    # 4. ANÁLISIS DE PHOENIX
+    # =====================================
+
+    idx_min = df_celsius["Phoenix"].idxmin()
+    idx_max = df_celsius["Phoenix"].idxmax()
+
+    fecha_min = df_celsius.loc[idx_min, "Date"]
+    fecha_max = df_celsius.loc[idx_max, "Date"]
+
+    temp_min = df_celsius.loc[idx_min, "Phoenix"]
+    temp_max = df_celsius.loc[idx_max, "Phoenix"]
+
+    temp_prom = df_celsius["Phoenix"].mean()
+
+    print(f"El día con la temperatura mínima en Phoenix fue: {fecha_min}")
+    print(f"La temperatura mínima registrada en Phoenix fue de: {temp_min:.2f} °C")
+
+    print(f"El día con la temperatura máxima en Phoenix fue: {fecha_max}")
+    print(f"La temperatura máxima registrada en Phoenix fue de: {temp_max:.2f} °C")
+
+    print(f"La temperatura promedio durante 2016 en Phoenix fue de: {temp_prom:.2f} °C")
+
+    # =====================================
+    # 5. GRAFICAR DISPERSIÓN
+    # =====================================
+
+    plt.figure(figsize=(10, 5))
+    plt.scatter(df_celsius["Date"], df_celsius["Phoenix"])
+    plt.xticks(rotation=90)
+    plt.xlabel("Fecha")
+    plt.ylabel("Temperatura (°C)")
+    plt.title("Temperatura en Phoenix durante 2016")
+
+    plt.tight_layout()
+    plt.savefig("temperatura_phoenix_2016.png")
+    plt.close()
+
+    # =====================================
+    # 6. EXPORTAR CSV
+    # =====================================
+
+    df_celsius.to_csv("data_celsius.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()
