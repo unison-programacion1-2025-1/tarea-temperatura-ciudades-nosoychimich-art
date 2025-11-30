@@ -1,31 +1,77 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
+# =====================================
+# 1. FUNCIÓN PARA CONVERTIR K → C
+# =====================================
 def kelvin_to_celsius(k):
     return k - 273.15
 
-def kelvin_to_fahrenheit(k):
-    return (k - 273.15) * 9/5 + 32
 
 def main():
-    # 1. Leer el archivo original
+
+    # =====================================
+    # 2. CARGAR DATASET ORIGINAL
+    # =====================================
     df = pd.read_csv("data.csv")
 
-    # 2. Agregar columnas convertidas
-    df["Temperatura_C"] = df["Temperatura_K"].apply(kelvin_to_celsius)
-    df["Temperatura_F"] = df["Temperatura_K"].apply(kelvin_to_fahrenheit)
+    # =====================================
+    # 3. CONVERTIR TODAS LAS CIUDADES A °C
+    # =====================================
+    df_celsius = pd.DataFrame()
+    df_celsius["Date"] = df["Date"]
+    df_celsius["San Diego"] = df["San Diego"].apply(kelvin_to_celsius)
+    df_celsius["Phoenix"] = df["Phoenix"].apply(kelvin_to_celsius)
+    df_celsius["Toronto"] = df["Toronto"].apply(kelvin_to_celsius)
 
-    # 3. Obtener estadísticas
-    prom = df["Temperatura_C"].mean()
-    ciudad_caliente = df.loc[df["Temperatura_C"].idxmax(), "Ciudad"]
-    ciudad_fria = df.loc[df["Temperatura_C"].idxmin(), "Ciudad"]
+    # =====================================
+    # 4. ANÁLISIS DE PHOENIX
+    # =====================================
 
-    print("=== Estadísticas ===")
-    print(f"Temperatura promedio (°C): {prom:.2f}")
-    print(f"Ciudad más caliente: {ciudad_caliente}")
-    print(f"Ciudad más fría: {ciudad_fria}")
+    idx_min = df_celsius["Phoenix"].idxmin()
+    idx_max = df_celsius["Phoenix"].idxmax()
 
-    # 4. Guardar archivo convertido
-    df.to_csv("temperaturas_convertidas.csv", index=False)
+    fecha_min = df_celsius.loc[idx_min, "Date"]
+    fecha_max = df_celsius.loc[idx_max, "Date"]
+
+    temp_min = df_celsius.loc[idx_min, "Phoenix"]
+    temp_max = df_celsius.loc[idx_max, "Phoenix"]
+
+    temp_prom = df_celsius["Phoenix"].mean()
+
+    print(f"El día con la temperatura mínima en Phoenix fue: {fecha_min}")
+    print(f"La temperatura mínima registrada en Phoenix fue de: {temp_min:.2f} °C")
+
+    print(f"El día con la temperatura máxima en Phoenix fue: {fecha_max}")
+    print(f"La temperatura máxima registrada en Phoenix fue de: {temp_max:.2f} °C")
+
+    print(f"La temperatura promedio durante 2016 en Phoenix fue de: {temp_prom:.2f} °C")
+
+    # =====================================
+    # 5. GRAFICAR DISPERSIÓN
+    # =====================================
+
+    plt.figure(figsize=(10, 5))
+    plt.scatter(df_celsius["Date"], df_celsius["Phoenix"])
+    plt.xticks(rotation=90)
+    plt.xlabel("Fecha")
+    plt.ylabel("Temperatura (°C)")
+    plt.title("Temperatura en Phoenix durante 2016")
+
+    plt.tight_layout()
+    plt.savefig("temperatura_phoenix_2016.png")
+    plt.close()
+
+    # =====================================
+    # 6. EXPORTAR CSV
+    # =====================================
+
+    df_celsius.to_csv("data_celsius.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()
+", index=False)
 
 if __name__ == "__main__":
     main()
